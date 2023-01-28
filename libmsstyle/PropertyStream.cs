@@ -20,13 +20,13 @@ namespace libmsstyle
         {
             int cursor = start;
             PropertyHeader header = new PropertyHeader(data, cursor);
-            while(!header.IsValid())
+            while (!header.IsValid())
             {
                 cursor++;
                 header = new PropertyHeader(data, cursor);
             }
 
-            if(cursor - start > 4)
+            if (cursor - start > 4)
             {
                 start = cursor;
                 throw new PropertyStreamUnknownBytesException();
@@ -51,7 +51,7 @@ namespace libmsstyle
                             cursor += sizeof(Int32);
                         }
 
-                        for(int i = 0; i < numInts; ++i)
+                        for (int i = 0; i < numInts; ++i)
                         {
                             list.Add(BitConverter.ToInt32(data, cursor));
                             cursor += sizeof(Int32);
@@ -133,7 +133,7 @@ namespace libmsstyle
                             int r = (colorref >> 0) & 0xFF;
                             int g = (colorref >> 8) & 0xFF;
                             int b = (colorref >> 16) & 0xFF;
-                            prop.SetValue(Color.FromArgb(r,g,b));
+                            prop.SetValue(Color.FromArgb(r, g, b));
                             cursor += 8;
                         }
                         else prop.SetValue(Color.FromArgb(0, 0, 0));
@@ -161,10 +161,24 @@ namespace libmsstyle
                         {
                             int l = BitConverter.ToInt32(data, cursor);
                             cursor += 4;
-                            int t = BitConverter.ToInt32(data, cursor);
-                            cursor += 4;
-                            int r = BitConverter.ToInt32(data, cursor);
-                            cursor += 4;
+
+                            int t, r;
+
+                            if ((IDENTIFIER)header.typeID == IDENTIFIER.RECTTYPE)
+                            {
+                                t = BitConverter.ToInt32(data, cursor);
+                                cursor += 4;
+                                r = BitConverter.ToInt32(data, cursor);
+                                cursor += 4;
+                            }
+                            else
+                            {
+                                r = BitConverter.ToInt32(data, cursor);
+                                cursor += 4;
+                                t = BitConverter.ToInt32(data, cursor);
+                                cursor += 4;
+                            }
+
                             int b = BitConverter.ToInt32(data, cursor);
                             cursor += 4;
                             prop.SetValue(new Margins(l, t, r, b));
@@ -210,12 +224,12 @@ namespace libmsstyle
             {
                 case IDENTIFIER.INTLIST:
                     {
-                        if(prop.Header.sizeInBytes != 0)
+                        if (prop.Header.sizeInBytes != 0)
                         {
                             var list = prop.GetValue() as List<Int32>;
                             writer.Write(list.Count);
-                            
-                            foreach(var num in list)
+
+                            foreach (var num in list)
                             {
                                 writer.Write(num);
                             }
@@ -322,8 +336,19 @@ namespace libmsstyle
                         {
                             Margins m = prop.GetValue() as Margins;
                             writer.Write(m.Left);
-                            writer.Write(m.Top);
-                            writer.Write(m.Right);
+
+                            if ((IDENTIFIER)prop.Header.typeID == IDENTIFIER.RECTTYPE)
+                            {
+                                writer.Write(m.Top);
+                                writer.Write(m.Right);
+                            }
+                            else
+                            {
+                                writer.Write(m.Right);
+                                writer.Write(m.Top);
+                            }
+
+
                             writer.Write(m.Bottom);
                         }
 
