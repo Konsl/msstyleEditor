@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace libmsstyle
 {
+    [Serializable]
     public class PropertyHeader : ICloneable
 	{
 		public Int32 nameID;     // Offset: 0, Size: 4,	ID for the property name, described in MSDN

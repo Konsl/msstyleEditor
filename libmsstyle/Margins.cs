@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace libmsstyle
 {
+    [Serializable]
     [TypeConverter(typeof(MarginsTypeConverter))]
     public class Margins
     {

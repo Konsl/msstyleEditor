@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace libmsstyle
 {
+    [Serializable]
     public class StyleState
     {
         public int StateId { get; set; }

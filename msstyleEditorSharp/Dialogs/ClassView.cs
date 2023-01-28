@@ -44,6 +44,46 @@ namespace msstyleEditor.Dialogs
                         var partNode = new TreeNode(part.Value.PartName);
                         partNode.Tag = part.Value;
 
+                        var ctxMenu = new ContextMenuStrip();
+                        ToolStripMenuItem copyLabel = new ToolStripMenuItem
+                        {
+                            Text = "Copy"
+                        };
+                        copyLabel.Click += (object sender, EventArgs e) =>
+                        {
+                            Clipboard.SetData(typeof(StylePart).FullName, partNode.Tag);
+                        };
+                        ToolStripMenuItem pasteLabel = new ToolStripMenuItem
+                        {
+                            Text = "Paste"
+                        };
+                        pasteLabel.Click += (object sender, EventArgs e) =>
+                        {
+                            if (Clipboard.GetData(typeof(StylePart).FullName) is StylePart data)
+                            {
+                                StylePart current = partNode.Tag as StylePart;
+
+                                foreach (var state in data.States)
+                                {
+                                    if (current.States.ContainsKey(state.Key))
+                                    {
+                                        foreach (var prop in state.Value.Properties)
+                                        {
+                                            current.States[state.Key].Properties.RemoveAll(v => v.Header.nameID == prop.Header.nameID);
+                                            StyleProperty p = prop;
+                                            p.Header.classID = cls.Value.ClassId;
+                                            p.Header.partID = current.PartId;
+                                            current.States[state.Key].Properties.Add(p);
+                                        }
+                                    }
+                                }
+                            }
+                        };
+
+                        ctxMenu.Items.AddRange(new ToolStripMenuItem[] { copyLabel, pasteLabel });
+
+                        partNode.ContextMenuStrip = ctxMenu;
+
                         clsNode.Nodes.Add(partNode);
                     }
                     classView.Nodes.Add(clsNode);
