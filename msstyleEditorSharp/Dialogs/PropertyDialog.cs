@@ -43,6 +43,7 @@ namespace msstyleEditor
             "Position",
             "Rectangle",
             "Font",
+            "IntList",
             "HighContrastColor"
         };
 
@@ -58,6 +59,7 @@ namespace msstyleEditor
             208,
             209,
             210,
+            211,
             241
         };
 
